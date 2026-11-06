@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Our little house</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================
+   1. COLORS
+   Think of these as paint cans. Change a color here and
+   every wall, door and button using it changes too.
+   =========================================================== */
+:root {
+  --sky:     #FFE3EC;  /* background */
+  --wall:    #FFF6F9;  /* house walls */
+  --roof:    #E8638F;  /* roof */
+  --door:    #C73B6E;  /* front door */
+  --trim:    #F6A9C3;  /* window frames, small details */
+  --ink:     #6B1F3A;  /* text */
+  --soft:    #A0566F;  /* quieter text */
+  --glow:    #FFD9A0;  /* warm light inside the house */
+  --card:    #FFFFFF;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+/* Night version, used automatically when her phone is in dark mode */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sky: #2B1424; --wall: #47213A; --roof: #B8466F; --door: #E06C96;
+    --trim: #8E3D62; --ink: #FBE3EC; --soft: #D9A3B8; --glow: #FFC77A;
+    --card: #3A1B30; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --sky: #2B1424; --wall: #47213A; --roof: #B8466F; --door: #E06C96;
+  --trim: #8E3D62; --ink: #FBE3EC; --soft: #D9A3B8; --glow: #FFC77A;
+  --card: #3A1B30; color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--sky);
+  color: var(--ink);
+  font-family: "Fredoka", "Nunito", "Segoe UI", system-ui, sans-serif;
+  overflow-x: hidden;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px dashed var(--roof); outline-offset: 4px; }
+
+/* ===========================================================
+   2. OUTSIDE: the house and its door
+   =========================================================== */
+.outside {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  text-align: center;
+  transition: transform 0.9s ease-in, opacity 0.9s ease-in;
+}
+/* When we "walk in", the whole outside zooms toward the door */
+.outside.zoom { transform: scale(6); opacity: 0; }
+
+.knock {
+  font-family: "Caveat", cursive;
+  font-size: clamp(2rem, 7vw, 3rem);
+  margin: 0 0 1.5rem;
+}
+
+.house { --w: min(340px, 82vw); width: var(--w); margin: 0 auto; }
+
+.roof {
+  width: 116%;
+  margin-left: -8%;
+  height: calc(var(--w) * 0.42);
+  background: var(--roof);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.walls {
+  position: relative;
+  height: calc(var(--w) * 0.78);
+  background: var(--wall);
+  border-radius: 0 0 6px 6px;
+}
+
+.window {
+  position: absolute;
+  top: 14%;
+  width: 22%;
+  aspect-ratio: 1;
+  background: var(--glow);
+  border: 6px solid var(--trim);
+  border-radius: 50% 50% 8px 8px;
+  display: grid;
+  place-items: center;
+  color: var(--roof);
+  font-size: calc(var(--w) * 0.07);
+}
+.window.left  { left: 9%; }
+.window.right { right: 9%; }
+
+/* The doorway is the hole in the wall; the door sits inside it */
+.doorway {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  translate: -50% 0;
+  width: 30%;
+  height: 64%;
+  border-radius: 999px 999px 0 0;
+  background: radial-gradient(circle at 50% 60%, #fff4dc, var(--glow) 70%);
+  perspective: 900px;           /* makes the door swing in 3D */
+}
+
+.door {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: 999px 999px 0 0;
+  background: var(--door);
+  cursor: pointer;
+  transform-origin: left center; /* the hinge is on the left */
+  transition: transform 0.9s cubic-bezier(.6,.05,.3,1);
+}
+.door .knob {
+  position: absolute;
+  right: 14%;
+  top: 55%;
+  width: 12%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--glow);
+}
+.door .heart {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  translate: -50% 0;
+  color: var(--wall);
+  font-size: calc(var(--w) * 0.08);
+}
+.door:hover { transform: rotateY(-12deg); }
+.house.open .door { transform: rotateY(-105deg); }
+
+/* Little sign hanging above the door with her name */
+.sign {
+  position: absolute;
+  bottom: 66%;
+  left: 50%;
+  translate: -50% 0;
+  padding: 0.15em 0.8em;
+  background: var(--card);
+  border: 2px solid var(--trim);
+  border-radius: 10px;
+  font-family: "Caveat", cursive;
+  font-size: calc(var(--w) * 0.075);
+  white-space: nowrap;
+}
+
+.step {
+  width: 40%;
+  height: 10px;
+  margin: 0 auto;
+  background: var(--trim);
+  border-radius: 0 0 8px 8px;
+}
+
+.hint { margin-top: 1.5rem; color: var(--soft); }
+
+/* ===========================================================
+   3. INSIDE: the living room
+   =========================================================== */
+.inside {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 3rem;
+  text-align: center;
+}
+.inside.show { animation: arrive 0.8s ease-out; }
+@keyframes arrive { from { opacity: 0; transform: scale(0.96); } }
+
+.welcome { font-size: 1.2rem; color: var(--soft); margin: 0; }
+.her-name {
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(3rem, 14vw, 5rem);
+  line-height: 1;
+  margin: 0.2rem 0 2rem;
+  color: var(--roof);
+}
+
+.counter {
+  background: var(--card);
+  border-radius: 28px;
+  padding: 1.75rem 1.25rem;
+  border: 3px solid var(--trim);
+}
+.counter p { margin: 0; }
+.days {
+  font-size: clamp(3.5rem, 16vw, 5.5rem);
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--door);
+  font-variant-numeric: tabular-nums;
+}
+.clock {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  margin: 0.75rem 0 1rem;
+  font-variant-numeric: tabular-nums;
+}
+.clock b { display: block; font-size: 1.6rem; font-weight: 500; }
+.clock small { color: var(--soft); }
+.since { color: var(--soft); line-height: 1.5; }
+
+/* Today's note looks like a sticky note */
+.note {
+  margin: 2rem auto;
+  max-width: 420px;
+  padding: 1.25rem 1.5rem;
+  background: var(--glow);
+  color: #5a2236;
+  font-family: "Caveat", cursive;
+  font-size: 1.6rem;
+  line-height: 1.3;
+  rotate: -1.5deg;
+  border-radius: 4px;
+}
+.note h2 { font-size: 1.1rem; font-family: "Fredoka", sans-serif; font-weight: 500; margin: 0 0 0.4rem; opacity: 0.75; }
+.note p { margin: 0; }
+
+/* Doors to the other rooms */
+.rooms h2 { font-weight: 500; font-size: 1.2rem; margin: 2.5rem 0 1rem; }
+.room-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.9rem;
+}
+.room {
+  border: 0;
+  padding: 1.6rem 0.4rem 0.9rem;
+  background: var(--door);
+  color: #fff;
+  border-radius: 999px 999px 10px 10px;
+  cursor: pointer;
+  line-height: 1.25;
+}
+.room span { display: block; font-size: 1.6rem; margin-bottom: 0.4rem; }
+.room[disabled] { opacity: 0.55; cursor: default; }
+.room small { display: block; margin-top: 0.4rem; opacity: 0.85; font-size: 0.75rem; }
+
+.leave {
+  margin-top: 2.5rem;
+  background: none;
+  border: 2px solid var(--trim);
+  border-radius: 999px;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+  color: var(--soft);
+}
+
+@media (max-width: 420px) {
+  .room-list { gap: 0.6rem; }
+  .room { font-size: 0.85rem; }
+}
+
+/* Respect people who turn off animations in their settings */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ======================= OUTSIDE ======================= -->
+<section class="outside" id="outside">
+  <div>
+    <p class="knock">Knock knock&hellip;</p>
+
+    <div class="house" id="house">
+      <div class="roof"></div>
+      <div class="walls">
+        <div class="window left">♥</div>
+        <div class="window right">♥</div>
+        <div class="sign" id="sign"></div>
+        <div class="doorway">
+          <button class="door" id="door" aria-label="Open the door">
+            <span class="heart">♥</span>
+            <span class="knob"></span>
+          </button>
+        </div>
+      </div>
+      <div class="step"></div>
+    </div>
+
+    <p class="hint">Tap the door to come in</p>
+  </div>
+</section>
+
+<!-- ======================= INSIDE ======================= -->
+<main class="inside" id="inside" hidden>
+  <p class="welcome">Welcome home,</p>
+  <h1 class="her-name" id="herName"></h1>
+
+  <section class="counter" aria-live="off">
+    <p>We’ve been together for</p>
+    <p class="days"><span id="days">0</span></p>
+    <p>days</p>
+    <div class="clock">
+      <div><b id="hours">0</b><small>hours</small></div>
+      <div><b id="minutes">0</b><small>minutes</small></div>
+      <div><b id="seconds">0</b><small>seconds</small></div>
+    </div>
+    <p class="since" id="since"></p>
+  </section>
+
+  <section class="note">
+    <h2>Today’s note for you</h2>
+    <p id="dailyNote"></p>
+  </section>
+
+  <section class="rooms">
+    <h2>Rooms in our house</h2>
+    <div class="room-list">
+      <button class="room" disabled><span>💌</span>Open when&hellip;<small>Coming soon</small></button>
+      <button class="room" disabled><span>💖</span>Reasons I love you<small>Coming soon</small></button>
+      <button class="room" disabled><span>⏳</span>Our time<small>Coming soon</small></button>
+    </div>
+  </section>
+
+  <button class="leave" id="leave">Step outside</button>
+</main>
+
+<script>
+/* ===========================================================
+   SETTINGS: edit these to make it yours
+   =========================================================== */
+const CONFIG = {
+  herName: "My Love",          // put her name or nickname here
+  startYear: 2025,             // ⚠️ change to the year you started
+  startMonth: 4,               // April
+  startDay: 19,
+  // One of these shows each day, in order. Add as many as you like!
+  notes: [
+    "Good morning, future wife (your words, not mine).",
+    "You make ordinary days feel like a holiday.",
+    "Drink some water, eat something good, and remember I’m proud of you.",
+    "I still think about the day you said “let’s get married.”",
+    "If today is hard, you don’t have to be strong. Just come here.",
+    "You’re my favorite notification.",
+    "Thank you for choosing me, every single day."
+  ]
+};
+
+/* ===========================================================
+   Grab the parts of the page we need to change
+   =========================================================== */
+const outside = document.getElementById("outside");
+const inside  = document.getElementById("inside");
+const house   = document.getElementById("house");
+const door    = document.getElementById("door");
+
+// new Date(year, monthIndex, day): months start at 0, so April = 3
+const start = new Date(CONFIG.startYear, CONFIG.startMonth - 1, CONFIG.startDay);
+
+document.getElementById("sign").textContent    = CONFIG.herName;
+document.getElementById("herName").textContent = CONFIG.herName;
+document.getElementById("since").textContent =
+  "Ever since " + CONFIG.startDay + " April " + CONFIG.startYear +
+  ", the day you said “let’s get married” (jokingly\u2026 right?)";
+
+/* ===========================================================
+   THE COUNTER
+   Like a stopwatch that started on your first day:
+   we subtract the start time from right now.
+   =========================================================== */
+const MS_SECOND = 1000;
+const MS_MINUTE = 60 * MS_SECOND;
+const MS_HOUR   = 60 * MS_MINUTE;
+const MS_DAY    = 24 * MS_HOUR;
+
+function updateCounter() {
+  const diff = Math.max(0, Date.now() - start.getTime());
+
+  document.getElementById("days").textContent    = Math.floor(diff / MS_DAY).toLocaleString();
+  document.getElementById("hours").textContent   = Math.floor((diff % MS_DAY) / MS_HOUR);
+  document.getElementById("minutes").textContent = Math.floor((diff % MS_HOUR) / MS_MINUTE);
+  document.getElementById("seconds").textContent = Math.floor((diff % MS_MINUTE) / MS_SECOND);
+}
+
+/* ===========================================================
+   TODAY'S NOTE
+   Day 0 gets note 0, day 1 gets note 1, and when we run
+   out we loop back to the start (that's what % does).
+   =========================================================== */
+function showDailyNote() {
+  const dayNumber = Math.floor((Date.now() - start.getTime()) / MS_DAY);
+  const index = ((dayNumber % CONFIG.notes.length) + CONFIG.notes.length) % CONFIG.notes.length;
+  document.getElementById("dailyNote").textContent = CONFIG.notes[index];
+}
+
+/* ===========================================================
+   OPENING THE DOOR
+   Step 1: swing the door open
+   Step 2: zoom the camera through the doorway
+   Step 3: show the inside of the house
+   =========================================================== */
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, reduceMotion ? 0 : ms));
+
+let isOpening = false;
+
+door.addEventListener("click", async () => {
+  if (isOpening) return;
+  isOpening = true;
+
+  house.classList.add("open");                        // step 1
+  await wait(800);
+
+  const box = door.getBoundingClientRect();           // step 2: zoom toward the door
+  outside.style.transformOrigin =
+    (box.left + box.width / 2) + "px " + (box.top + box.height / 2) + "px";
+  outside.classList.add("zoom");
+  await wait(850);
+
+  outside.hidden = true;                              // step 3
+  inside.hidden = false;
+  inside.classList.add("show");
+  window.scrollTo(0, 0);
+  isOpening = false;
+});
+
+document.getElementById("leave").addEventListener("click", () => {
+  inside.hidden = true;
+  inside.classList.remove("show");
+  outside.classList.remove("zoom");
+  house.classList.remove("open");
+  outside.hidden = false;
+  door.focus();
+});
+
+/* Start everything */
+updateCounter();
+showDailyNote();
+setInterval(updateCounter, 1000);   // tick once every second
+</script>
+</body>
+</html>
