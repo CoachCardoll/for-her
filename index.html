@@ -9,40 +9,40 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
 <style>
 /* ===========================================================
-   1. COLORS
-   Think of these as paint cans. Change a color here and
-   every wall, door and button using it changes too.
+   1. PAGE COLORS (the "paint cans")
+   The room itself has its own colors in the JavaScript
+   section called ROOM_COLORS.
    =========================================================== */
 :root {
-  --sky:     #FFE3EC;  /* background */
-  --wall:    #FFF6F9;  /* house walls */
-  --roof:    #E8638F;  /* roof */
-  --door:    #C73B6E;  /* front door */
-  --trim:    #F6A9C3;  /* window frames, small details */
-  --ink:     #6B1F3A;  /* text */
-  --soft:    #A0566F;  /* quieter text */
-  --glow:    #FFD9A0;  /* warm light inside the house */
-  --card:    #FFFFFF;
+  --sky:   #FFE3EC;
+  --wall:  #FFF6F9;
+  --roof:  #E8638F;
+  --door:  #C73B6E;
+  --trim:  #F6A9C3;
+  --ink:   #6B1F3A;
+  --soft:  #A0566F;
+  --glow:  #FFD9A0;
+  --card:  #FFFFFF;
   color-scheme: light;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-/* Night version, used automatically when her phone is in dark mode */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --sky: #2B1424; --wall: #47213A; --roof: #B8466F; --door: #E06C96;
+    --sky: #2B1424; --wall: #47213A; --roof: #F07AA3; --door: #E06C96;
     --trim: #8E3D62; --ink: #FBE3EC; --soft: #D9A3B8; --glow: #FFC77A;
     --card: #3A1B30; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --sky: #2B1424; --wall: #47213A; --roof: #B8466F; --door: #E06C96;
+  --sky: #2B1424; --wall: #47213A; --roof: #F07AA3; --door: #E06C96;
   --trim: #8E3D62; --ink: #FBE3EC; --soft: #D9A3B8; --glow: #FFC77A;
   --card: #3A1B30; color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { height: 100%; margin: 0; }
 body {
   background: var(--sky);
@@ -52,9 +52,10 @@ body {
 }
 button { font: inherit; color: inherit; }
 :focus-visible { outline: 3px dashed var(--roof); outline-offset: 4px; }
+.hand { font-family: "Caveat", "Comic Sans MS", cursive; }
 
 /* ===========================================================
-   2. OUTSIDE: the house and its door
+   2. OUTSIDE: the house and its front door
    =========================================================== */
 .outside {
   min-height: 100%;
@@ -64,215 +65,151 @@ button { font: inherit; color: inherit; }
   text-align: center;
   transition: transform 0.9s ease-in, opacity 0.9s ease-in;
 }
-/* When we "walk in", the whole outside zooms toward the door */
 .outside.zoom { transform: scale(6); opacity: 0; }
-
-.knock {
-  font-family: "Caveat", cursive;
-  font-size: clamp(2rem, 7vw, 3rem);
-  margin: 0 0 1.5rem;
-}
+.knock { font-family: "Caveat", cursive; font-size: clamp(2rem, 7vw, 3rem); margin: 0 0 1.5rem; }
 
 .house { --w: min(340px, 82vw); width: var(--w); margin: 0 auto; }
-
 .roof {
-  width: 116%;
-  margin-left: -8%;
+  width: 116%; margin-left: -8%;
   height: calc(var(--w) * 0.42);
   background: var(--roof);
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
-
-.walls {
-  position: relative;
-  height: calc(var(--w) * 0.78);
-  background: var(--wall);
-  border-radius: 0 0 6px 6px;
-}
-
+.walls { position: relative; height: calc(var(--w) * 0.78); background: var(--wall); border-radius: 0 0 6px 6px; }
 .window {
-  position: absolute;
-  top: 14%;
-  width: 22%;
-  aspect-ratio: 1;
-  background: var(--glow);
-  border: 6px solid var(--trim);
+  position: absolute; top: 14%; width: 22%; aspect-ratio: 1;
+  background: var(--glow); border: 6px solid var(--trim);
   border-radius: 50% 50% 8px 8px;
-  display: grid;
-  place-items: center;
-  color: var(--roof);
-  font-size: calc(var(--w) * 0.07);
+  display: grid; place-items: center;
+  color: var(--roof); font-size: calc(var(--w) * 0.07);
 }
-.window.left  { left: 9%; }
-.window.right { right: 9%; }
-
-/* The doorway is the hole in the wall; the door sits inside it */
+.window.left { left: 9%; } .window.right { right: 9%; }
 .doorway {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  translate: -50% 0;
-  width: 30%;
-  height: 64%;
+  position: absolute; bottom: 0; left: 50%; translate: -50% 0;
+  width: 30%; height: 64%;
   border-radius: 999px 999px 0 0;
   background: radial-gradient(circle at 50% 60%, #fff4dc, var(--glow) 70%);
-  perspective: 900px;           /* makes the door swing in 3D */
+  perspective: 900px;
 }
-
 .door {
-  position: absolute;
-  inset: 0;
-  border: 0;
+  position: absolute; inset: 0; border: 0;
   border-radius: 999px 999px 0 0;
-  background: var(--door);
-  cursor: pointer;
-  transform-origin: left center; /* the hinge is on the left */
+  background: var(--door); cursor: pointer;
+  transform-origin: left center;
   transition: transform 0.9s cubic-bezier(.6,.05,.3,1);
 }
-.door .knob {
-  position: absolute;
-  right: 14%;
-  top: 55%;
-  width: 12%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--glow);
-}
-.door .heart {
-  position: absolute;
-  top: 22%;
-  left: 50%;
-  translate: -50% 0;
-  color: var(--wall);
-  font-size: calc(var(--w) * 0.08);
-}
+.door .knob { position: absolute; right: 14%; top: 55%; width: 12%; aspect-ratio: 1; border-radius: 50%; background: var(--glow); }
+.door .heart { position: absolute; top: 22%; left: 50%; translate: -50% 0; color: #FFF6F9; font-size: calc(var(--w) * 0.08); }
 .door:hover { transform: rotateY(-12deg); }
 .house.open .door { transform: rotateY(-105deg); }
-
-/* Little sign hanging above the door with her name */
 .sign {
-  position: absolute;
-  bottom: 66%;
-  left: 50%;
-  translate: -50% 0;
-  padding: 0.15em 0.8em;
-  background: var(--card);
-  border: 2px solid var(--trim);
-  border-radius: 10px;
-  font-family: "Caveat", cursive;
-  font-size: calc(var(--w) * 0.075);
-  white-space: nowrap;
+  position: absolute; bottom: 66%; left: 50%; translate: -50% 0;
+  padding: 0.15em 0.8em; background: var(--card);
+  border: 2px solid var(--trim); border-radius: 10px;
+  font-family: "Caveat", cursive; font-size: calc(var(--w) * 0.075); white-space: nowrap;
 }
-
-.step {
-  width: 40%;
-  height: 10px;
-  margin: 0 auto;
-  background: var(--trim);
-  border-radius: 0 0 8px 8px;
-}
-
-.hint { margin-top: 1.5rem; color: var(--soft); }
+.step { width: 40%; height: 10px; margin: 0 auto; background: var(--trim); border-radius: 0 0 8px 8px; }
+.hint { color: var(--soft); }
+.outside .hint { margin-top: 1.5rem; }
 
 /* ===========================================================
-   3. INSIDE: the living room
+   3. INSIDE: the isometric room
    =========================================================== */
 .inside {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 2.5rem 1.25rem 3rem;
-  text-align: center;
+  min-height: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 1.25rem 1rem 2rem;
 }
 .inside.show { animation: arrive 0.8s ease-out; }
 @keyframes arrive { from { opacity: 0; transform: scale(0.96); } }
 
-.welcome { font-size: 1.2rem; color: var(--soft); margin: 0; }
-.her-name {
-  font-family: "Caveat", cursive;
-  font-weight: 700;
-  font-size: clamp(3rem, 14vw, 5rem);
-  line-height: 1;
-  margin: 0.2rem 0 2rem;
-  color: var(--roof);
+.topbar {
+  width: 100%; max-width: 880px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 0.5rem 1rem;
+}
+.topbar h1 {
+  margin: 0; font-family: "Caveat", cursive; font-weight: 700;
+  font-size: clamp(2rem, 8vw, 3rem); line-height: 1; color: var(--roof);
+}
+.tracker {
+  padding: 0.35rem 0.9rem; border-radius: 999px;
+  background: var(--card); border: 2px solid var(--trim); font-size: 0.95rem;
 }
 
-.counter {
-  background: var(--card);
-  border-radius: 28px;
-  padding: 1.75rem 1.25rem;
-  border: 3px solid var(--trim);
-}
-.counter p { margin: 0; }
-.days {
-  font-size: clamp(3.5rem, 16vw, 5.5rem);
-  font-weight: 600;
-  line-height: 1.05;
-  color: var(--door);
-  font-variant-numeric: tabular-nums;
-}
-.clock {
-  display: flex;
-  justify-content: center;
-  gap: 1.25rem;
-  margin: 0.75rem 0 1rem;
-  font-variant-numeric: tabular-nums;
-}
-.clock b { display: block; font-size: 1.6rem; font-weight: 500; }
-.clock small { color: var(--soft); }
-.since { color: var(--soft); line-height: 1.5; }
+#room { width: 100%; max-width: 880px; height: auto; margin-top: 0.5rem; overflow: visible; }
 
-/* Today's note looks like a sticky note */
-.note {
-  margin: 2rem auto;
-  max-width: 420px;
-  padding: 1.25rem 1.5rem;
-  background: var(--glow);
-  color: #5a2236;
-  font-family: "Caveat", cursive;
-  font-size: 1.6rem;
-  line-height: 1.3;
-  rotate: -1.5deg;
-  border-radius: 4px;
+/* Every object she can tap is a ".spot" */
+.spot { cursor: pointer; transition: transform 0.2s ease, filter 0.2s ease; outline: none; }
+.spot:hover, .spot:focus-visible {
+  transform: translateY(-5px);
+  filter: drop-shadow(0 0 4px #fff) drop-shadow(0 0 10px #FF8FB3);
 }
-.note h2 { font-size: 1.1rem; font-family: "Fredoka", sans-serif; font-weight: 500; margin: 0 0 0.4rem; opacity: 0.75; }
-.note p { margin: 0; }
+.spot .hit { fill: transparent; }
 
-/* Doors to the other rooms */
-.rooms h2 { font-weight: 500; font-size: 1.2rem; margin: 2.5rem 0 1rem; }
-.room-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.9rem;
+/* Twinkling sparkles show which things haven't been found yet */
+.sparkle {
+  fill: #FFFFFF; stroke: #FF8FB3; stroke-width: 1.5;
+  transform-box: fill-box; transform-origin: center;
+  animation: twinkle 2.2s ease-in-out infinite;
 }
-.room {
-  border: 0;
-  padding: 1.6rem 0.4rem 0.9rem;
-  background: var(--door);
-  color: #fff;
-  border-radius: 999px 999px 10px 10px;
-  cursor: pointer;
-  line-height: 1.25;
-}
-.room span { display: block; font-size: 1.6rem; margin-bottom: 0.4rem; }
-.room[disabled] { opacity: 0.55; cursor: default; }
-.room small { display: block; margin-top: 0.4rem; opacity: 0.85; font-size: 0.75rem; }
+.spot.found .sparkle { display: none; }
+@keyframes twinkle { 0%,100% { opacity: 0.25; scale: 0.6; } 50% { opacity: 1; scale: 1.1; } }
 
 .leave {
-  margin-top: 2.5rem;
-  background: none;
-  border: 2px solid var(--trim);
-  border-radius: 999px;
-  padding: 0.5rem 1.25rem;
-  cursor: pointer;
-  color: var(--soft);
+  margin-top: 1rem; background: none;
+  border: 2px solid var(--trim); border-radius: 999px;
+  padding: 0.5rem 1.25rem; cursor: pointer; color: var(--soft);
 }
 
-@media (max-width: 420px) {
-  .room-list { gap: 0.6rem; }
-  .room { font-size: 0.85rem; }
+/* ===========================================================
+   4. THE POP-UP CARD that opens when she taps something
+   =========================================================== */
+dialog.panel {
+  width: min(440px, calc(100% - 2rem));
+  border: 3px solid var(--trim); border-radius: 26px;
+  padding: 1.75rem 1.5rem 1.5rem;
+  background: var(--card); color: var(--ink);
+  text-align: center;
 }
+dialog.panel::backdrop { background: rgba(120, 30, 70, 0.35); backdrop-filter: blur(3px); }
+dialog.panel[open] { animation: pop 0.25s ease-out; }
+@keyframes pop { from { opacity: 0; transform: translateY(12px) scale(0.97); } }
+.panel h2 { margin: 0 0 0.75rem; font-weight: 500; font-size: 1.35rem; }
+.panel p { line-height: 1.55; margin: 0.4rem 0; }
+.panel .big-hand { font-family: "Caveat", cursive; font-size: 1.9rem; line-height: 1.3; }
+.panel .muted { color: var(--soft); font-size: 0.95rem; }
+.panel .close {
+  position: absolute; top: 0.6rem; right: 0.8rem;
+  border: 0; background: none; font-size: 1.5rem; cursor: pointer; color: var(--soft);
+}
+.pill-btn {
+  margin-top: 1rem; border: 0; border-radius: 999px;
+  padding: 0.6rem 1.3rem; background: var(--door); color: #fff; cursor: pointer;
+}
+.days { font-size: 3.6rem; font-weight: 600; line-height: 1.05; color: var(--door); font-variant-numeric: tabular-nums; }
+.clock-row { display: flex; justify-content: center; gap: 1.25rem; margin: 0.6rem 0 0.9rem; font-variant-numeric: tabular-nums; }
+.clock-row b { display: block; font-size: 1.5rem; font-weight: 500; }
+.clock-row small { color: var(--soft); }
 
-/* Respect people who turn off animations in their settings */
+.letters { display: grid; gap: 0.6rem; margin-top: 0.5rem; text-align: left; }
+.letter-btn {
+  display: flex; align-items: center; gap: 0.75rem;
+  width: 100%; padding: 0.7rem 0.9rem;
+  border: 2px solid var(--trim); border-radius: 14px;
+  background: transparent; cursor: pointer; text-align: left;
+}
+.letter-btn span { font-size: 1.4rem; }
+.letter-btn small { display: block; color: var(--soft); }
+.letter-btn[disabled] { cursor: default; opacity: 0.6; }
+.letter-paper {
+  text-align: left; padding: 1rem 1.1rem; border-radius: 10px;
+  background: #FFF8EC; color: #5a2236;
+  font-family: "Caveat", cursive; font-size: 1.55rem; line-height: 1.35;
+  white-space: pre-line;
+}
+.reason-pop { animation: pop 0.35s ease-out; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
@@ -284,7 +221,6 @@ button { font: inherit; color: inherit; }
 <section class="outside" id="outside">
   <div>
     <p class="knock">Knock knock&hellip;</p>
-
     <div class="house" id="house">
       <div class="roof"></div>
       <div class="walls">
@@ -293,145 +229,570 @@ button { font: inherit; color: inherit; }
         <div class="sign" id="sign"></div>
         <div class="doorway">
           <button class="door" id="door" aria-label="Open the door">
-            <span class="heart">♥</span>
-            <span class="knob"></span>
+            <span class="heart">♥</span><span class="knob"></span>
           </button>
         </div>
       </div>
       <div class="step"></div>
     </div>
-
     <p class="hint">Tap the door to come in</p>
   </div>
 </section>
 
 <!-- ======================= INSIDE ======================= -->
 <main class="inside" id="inside" hidden>
-  <p class="welcome">Welcome home,</p>
-  <h1 class="her-name" id="herName"></h1>
+  <div class="topbar">
+    <h1 id="welcome"></h1>
+    <div class="tracker" id="tracker"></div>
+  </div>
 
-  <section class="counter" aria-live="off">
-    <p>We’ve been together for</p>
-    <p class="days"><span id="days">0</span></p>
-    <p>days</p>
-    <div class="clock">
-      <div><b id="hours">0</b><small>hours</small></div>
-      <div><b id="minutes">0</b><small>minutes</small></div>
-      <div><b id="seconds">0</b><small>seconds</small></div>
-    </div>
-    <p class="since" id="since"></p>
-  </section>
+  <!-- The whole room is drawn into this SVG by JavaScript -->
+  <svg id="room" viewBox="-375 -285 750 720" role="group" aria-label="The living room"></svg>
 
-  <section class="note">
-    <h2>Today’s note for you</h2>
-    <p id="dailyNote"></p>
-  </section>
-
-  <section class="rooms">
-    <h2>Rooms in our house</h2>
-    <div class="room-list">
-      <button class="room" disabled><span>💌</span>Open when&hellip;<small>Coming soon</small></button>
-      <button class="room" disabled><span>💖</span>Reasons I love you<small>Coming soon</small></button>
-      <button class="room" disabled><span>⏳</span>Our time<small>Coming soon</small></button>
-    </div>
-  </section>
-
+  <p class="hint">Tap the sparkly things to explore the room</p>
   <button class="leave" id="leave">Step outside</button>
 </main>
 
+<!-- The pop-up card -->
+<dialog class="panel" id="panel">
+  <button class="close" id="closePanel" aria-label="Close">×</button>
+  <div id="panelBody"></div>
+</dialog>
+
 <script>
 /* ===========================================================
-   SETTINGS: edit these to make it yours
+   SETTINGS: edit everything in here to make it yours
    =========================================================== */
 const CONFIG = {
-  herName: "My Love",          // put her name or nickname here
-  startYear: 2026,             // ⚠️ change to the year you started
-  startMonth: 4,               // April
+  herName: "My Love",
+  catName: "Mochi",
+  startYear: 2025,          // ⚠️ change to the year you started
+  startMonth: 4,
   startDay: 19,
-  // One of these shows each day, in order. Add as many as you like!
+
+  // Sticky note on the wall: a different one each day
   notes: [
-    "Good morning, future wife.",
+    "Good morning, future wife (your words, not mine).",
     "You make ordinary days feel like a holiday.",
     "Drink some water, eat something good, and remember I’m proud of you.",
     "I still think about the day you said “let’s get married.”",
-    "If today is hard, you don’t have to be strong. Just come here.",
     "You’re my favorite notification.",
     "Thank you for choosing me, every single day."
-  ]
+  ],
+
+  // The jar of hearts: write as many as you want!
+  reasons: [
+    "The way you laugh at your own jokes before you finish them.",
+    "You make me want to be a better person.",
+    "You remember the tiny things I say.",
+    "Your hugs fix bad days.",
+    "You said “let’s get married” as a joke, and I haven’t stopped smiling since.",
+    "You’re cute when you’re sleepy.",
+    "You believe in me even when I don’t."
+  ],
+
+  // Letters on the table. Add "unlock" (year-month-day) to lock one until that date.
+  letters: [
+    { emoji: "🌧️", title: "Open when you’re sad",
+      text: "Hey you.\nIt’s okay to have a sad day. You don’t have to fix it right now.\nI’m one message away, always.\n— me" },
+    { emoji: "🌙", title: "Open when you can’t sleep",
+      text: "Close your eyes and imagine me humming badly next to you.\nBreathe in… breathe out…\nGoodnight, my favorite person." },
+    { emoji: "📚", title: "Open when you’re stressed",
+      text: "You’ve handled every hard thing so far. This one too.\nTake a break, eat a snack, then go show it who’s boss." },
+    { emoji: "💍", title: "Open on our anniversary", unlock: "2027-04-19",
+      text: "Happy anniversary! Write your anniversary letter here." }
+  ],
+
+  // Shown once she has found everything in the room
+  secretMessage: "You explored every corner of our little house. Just like you explored every corner of my heart. I love you."
 };
 
 /* ===========================================================
-   Grab the parts of the page we need to change
+   ROOM COLORS
    =========================================================== */
-const outside = document.getElementById("outside");
-const inside  = document.getElementById("inside");
-const house   = document.getElementById("house");
-const door    = document.getElementById("door");
-
-// new Date(year, monthIndex, day): months start at 0, so April = 3
-const start = new Date(CONFIG.startYear, CONFIG.startMonth - 1, CONFIG.startDay);
-
-document.getElementById("sign").textContent    = CONFIG.herName;
-document.getElementById("herName").textContent = CONFIG.herName;
-document.getElementById("since").textContent =
-  "Ever since " + CONFIG.startDay + " April " + CONFIG.startYear +
-  ", the day you said “let’s get married” (jokingly\u2026 right?)";
+const ROOM_COLORS = {
+  floor: "#E9B9A4", floorLine: "#D79F89",
+  wallLeft: "#F7BFD2", wallRight: "#FBD3E0", wallCap: "#FFE9F0",
+  baseboard: "#FFFFFF",
+  sofa: "#E26F98", sofaSeat: "#EA88A9", cushion: "#FFD1DF",
+  wood: "#F1C4A6", woodDark: "#C98D6E",
+  cabinet: "#EE9FBA", radio: "#9ED8C9",
+  pot: "#C7A4DE", leaf: "#7CC49A", leafDark: "#5FAF85",
+  rug: "#FFF0F5", rugLine: "#F4A9C2",
+  cat: "#9B8E9C", catLight: "#D8CED8",
+  accent: "#E8638F"
+};
 
 /* ===========================================================
-   THE COUNTER
-   Like a stopwatch that started on your first day:
-   we subtract the start time from right now.
+   ISOMETRIC MATH
+   Imagine the room as a grid of floor tiles.
+   x = steps toward the right wall's end, y = steps toward
+   the left wall's end, z = height. iso() turns those three
+   numbers into a spot on the screen, like a camera looking
+   at the room from a corner of the ceiling.
    =========================================================== */
-const MS_SECOND = 1000;
-const MS_MINUTE = 60 * MS_SECOND;
-const MS_HOUR   = 60 * MS_MINUTE;
-const MS_DAY    = 24 * MS_HOUR;
+const U = 34.64;  // how far one tile moves sideways on screen
+const V = 20;     // how far one tile moves down on screen
+const H = 40;     // how far one unit of height moves up
+
+function iso(x, y, z) {
+  return [(x - y) * U, (x + y) * V - z * H];
+}
+function pts(list) {
+  return list.map(p => iso(p[0], p[1], p[2]).map(n => n.toFixed(1)).join(",")).join(" ");
+}
+function poly(list, fill) {
+  return `<polygon points="${pts(list)}" fill="${fill}"/>`;
+}
+
+// Lighten (positive) or darken (negative) a hex color
+function shade(hex, amount) {
+  const n = parseInt(hex.slice(1), 16);
+  const target = amount < 0 ? 0 : 255, p = Math.abs(amount);
+  const mix = c => Math.round(c + (target - c) * p);
+  return `rgb(${mix(n >> 16)},${mix((n >> 8) & 255)},${mix(n & 255)})`;
+}
+
+// Every piece of furniture is just a box with three visible sides
+function box(x, y, z, w, d, h, color) {
+  const x2 = x + w, y2 = y + d, top = z + h;
+  return (
+    poly([[x, y2, z], [x2, y2, z], [x2, y2, top], [x, y2, top]], color) +              // left-facing side
+    poly([[x2, y, z], [x2, y2, z], [x2, y2, top], [x2, y, top]], shade(color, -0.14)) + // right-facing side
+    poly([[x, y, top], [x2, y, top], [x2, y2, top], [x, y2, top]], shade(color, 0.18))  // top
+  );
+}
+
+// "Stickers" for flat surfaces: draw normal 2D shapes and they get
+// bent onto the wall or floor, like a decal on a box.
+const onRightWall = (y = 0) => `matrix(${U},${V},0,${H},${-U * y},${V * y})`;  // uses (x, -height)
+const onLeftWall  = (x = 0) => `matrix(${U},${-V},0,${H},${U * x},${V * x})`;  // uses (-y, -height)
+const onFloor     = (z = 0) => `matrix(${U},${V},${-U},${V},0,${-H * z})`;     // uses (x, y)
+
+function heart(cx, cy, size, fill) {
+  return `<path transform="translate(${cx},${cy}) scale(${size})" d="M0 .9C-1.3 0-.6-1.1 0-.35C.6-1.1 1.3 0 0 .9Z" fill="${fill}"/>`;
+}
+function sparkle(x, y) {
+  return `<g transform="translate(${x},${y})"><path class="sparkle" d="M0-11L3-3 11 0 3 3 0 11-3 3-11 0-3-3Z"/></g>`;
+}
+function spot(id, label, inner, hitX, hitY, hitR, sparkX, sparkY) {
+  return `<g class="spot" data-spot="${id}" tabindex="0" role="button" aria-label="${label}">
+    <circle class="hit" cx="${hitX}" cy="${hitY}" r="${hitR}"/>
+    ${inner}
+    ${sparkle(sparkX, sparkY)}
+  </g>`;
+}
+
+/* ===========================================================
+   BUILDING THE ROOM
+   Drawn from back to front, like a painter: things far away
+   first, so closer things can cover them.
+   =========================================================== */
+function buildRoom() {
+  const C = ROOM_COLORS;
+  let s = "";
+
+  s += `<defs><clipPath id="windowClip"><rect x="-6.5" y="-4.8" width="3" height="2.4"/></clipPath></defs>`;
+
+  // ---- Floor slab and walls ----
+  s += box(-0.3, -0.3, -0.4, 10.3, 10.3, 0.4, C.floor);
+  s += poly([[0, 0, 0], [0, 10, 0], [0, 10, 6], [0, 0, 6]], C.wallLeft);
+  s += poly([[0, 0, 0], [10, 0, 0], [10, 0, 6], [0, 0, 6]], C.wallRight);
+  s += poly([[-0.3, -0.3, 6], [-0.3, 10, 6], [0, 10, 6], [0, 0, 6]], C.wallCap);
+  s += poly([[-0.3, -0.3, 6], [10, -0.3, 6], [10, 0, 6], [0, 0, 6]], C.wallCap);
+  s += poly([[-0.3, 10, 0], [0, 10, 0], [0, 10, 6], [-0.3, 10, 6]], shade(C.wallLeft, -0.12));
+  s += poly([[10, -0.3, 0], [10, 0, 0], [10, 0, 6], [10, -0.3, 6]], shade(C.wallRight, -0.18));
+  s += poly([[0, 0, 0], [0, 10, 0], [0, 10, 0.35], [0, 0, 0.35]], C.baseboard);
+  s += poly([[0, 0, 0], [10, 0, 0], [10, 0, 0.35], [0, 0, 0.35]], C.baseboard);
+
+  // Floorboards
+  s += `<g transform="${onFloor(0)}" stroke="${C.floorLine}" stroke-width="0.035">`;
+  for (let i = 1; i < 10; i++) s += `<line x1="${i}" y1="0" x2="${i}" y2="10"/>`;
+  s += `</g>`;
+
+  // ---- LEFT WALL: sticky note + window ----
+  s += spot("note", "Sticky note on the wall",
+    `<g transform="${onLeftWall(0)}">
+       <rect x="-2.65" y="-4.35" width="1.25" height="1.15" fill="#FFE08A" transform="rotate(-4 -2 -3.8)"/>
+       <circle cx="-2" cy="-4.2" r="0.08" fill="${C.accent}"/>
+       <text x="-2.02" y="-3.65" font-size="0.32" text-anchor="middle" class="hand" fill="#7a3b2e">for you</text>
+       <path d="M-2.4 -3.45 Q-2 -3.55 -1.65 -3.45" stroke="#c98d6e" stroke-width="0.04" fill="none"/>
+     </g>`,
+    ...iso(0, 2, 3.8), 34, ...iso(0, 1.3, 4.6));
+
+  s += spot("window", "Window",
+    `<g transform="${onLeftWall(0)}">
+       <g clip-path="url(#windowClip)">
+         <rect id="sky" x="-6.5" y="-4.8" width="3" height="2.4" fill="#BFE6FF"/>
+         <g id="stars" fill="#fff">
+           <circle cx="-6" cy="-4.4" r="0.04"/><circle cx="-4.2" cy="-4.5" r="0.05"/>
+           <circle cx="-5.3" cy="-3.9" r="0.03"/><circle cx="-3.9" cy="-3.7" r="0.04"/>
+         </g>
+         <circle id="sunmoon" cx="-4.4" cy="-4.1" r="0.32" fill="#FFE27A"/>
+         <path d="M-6.6 -2.4 Q-5.8 -3.1 -5 -2.6 Q-4.3 -3.2 -3.4 -2.5 L-3.4 -2.4Z" fill="#8FD3A8" id="hill"/>
+       </g>
+       <rect x="-6.5" y="-4.8" width="3" height="2.4" fill="none" stroke="#fff" stroke-width="0.14"/>
+       <line x1="-5" y1="-4.8" x2="-5" y2="-2.4" stroke="#fff" stroke-width="0.09"/>
+       <line x1="-6.5" y1="-3.6" x2="-3.5" y2="-3.6" stroke="#fff" stroke-width="0.09"/>
+       <rect x="-6.7" y="-2.42" width="3.4" height="0.16" fill="#fff"/>
+       <line x1="-6.9" y1="-5.05" x2="-3.1" y2="-5.05" stroke="${C.woodDark}" stroke-width="0.07"/>
+       <path d="M-6.9 -5.05 L-6.2 -5.05 Q-6.35 -3.8 -6.1 -2.7 L-6.9 -2.7Z" fill="${C.sofa}" opacity="0.9"/>
+       <path d="M-3.1 -5.05 L-3.8 -5.05 Q-3.65 -3.8 -3.9 -2.7 L-3.1 -2.7Z" fill="${C.sofa}" opacity="0.9"/>
+     </g>`,
+    ...iso(0, 5, 3.6), 70, ...iso(0, 3.2, 5.3));
+
+  // ---- RIGHT WALL: clock + photo frames ----
+  let ticks = "";
+  for (let i = 0; i < 12; i++) {
+    const a = i * Math.PI / 6;
+    ticks += `<line x1="${2.5 + Math.sin(a) * 0.58}" y1="${-4.3 - Math.cos(a) * 0.58}" x2="${2.5 + Math.sin(a) * 0.68}" y2="${-4.3 - Math.cos(a) * 0.68}" stroke="${C.accent}" stroke-width="0.05"/>`;
+  }
+  s += spot("clock", "Wall clock",
+    `<g transform="${onRightWall(0)}">
+       <circle cx="2.5" cy="-4.3" r="0.8" fill="#fff" stroke="${C.accent}" stroke-width="0.13"/>
+       ${ticks}
+       <line id="hourHand" x1="2.5" y1="-4.3" x2="2.5" y2="-4.68" stroke="#6B1F3A" stroke-width="0.08" stroke-linecap="round"/>
+       <line id="minHand"  x1="2.5" y1="-4.3" x2="2.5" y2="-4.86" stroke="#6B1F3A" stroke-width="0.05" stroke-linecap="round"/>
+       <line id="secHand"  x1="2.5" y1="-4.3" x2="2.5" y2="-4.9" stroke="${C.accent}" stroke-width="0.025"/>
+       <circle cx="2.5" cy="-4.3" r="0.06" fill="${C.accent}"/>
+     </g>`,
+    ...iso(2.5, 0, 4.3), 40, ...iso(3.4, 0, 5.3));
+
+  s += spot("photos", "Photo frames",
+    `<g transform="${onRightWall(0)}">
+       <rect x="4.8" y="-5.1" width="1.2" height="1.4" fill="#fff" stroke="${C.woodDark}" stroke-width="0.1"/>
+       <rect x="4.95" y="-4.95" width="0.9" height="1.1" fill="#FFD1DF"/>
+       ${heart(5.4, -4.45, 0.28, C.accent)}
+       <rect x="6.3" y="-5.4" width="1.5" height="1.15" fill="#fff" stroke="${C.woodDark}" stroke-width="0.1"/>
+       <rect x="6.45" y="-5.25" width="1.2" height="0.85" fill="#CDEBFF"/>
+       <path d="M6.45 -4.4 L6.9 -4.9 L7.2 -4.6 L7.4 -4.8 L7.65 -4.4Z" fill="#8FD3A8"/>
+       <circle cx="7.35" cy="-5.05" r="0.1" fill="#FFE27A"/>
+       <rect x="8.1" y="-4.9" width="1.1" height="1.25" fill="#fff" stroke="${C.woodDark}" stroke-width="0.1"/>
+       <rect x="8.25" y="-4.75" width="0.8" height="0.95" fill="#FFF0C9"/>
+       ${heart(8.5, -4.3, 0.15, C.accent)}${heart(8.8, -4.3, 0.15, C.accent)}
+     </g>`,
+    ...iso(6.8, 0, 4.4), 75, ...iso(9.4, 0, 5.4));
+
+  // ---- Rug ----
+  s += `<g transform="${onFloor(0)}">
+          <ellipse cx="5.3" cy="6.2" rx="3.3" ry="2.6" fill="${C.rug}"/>
+          <ellipse cx="5.3" cy="6.2" rx="2.9" ry="2.2" fill="none" stroke="${C.rugLine}" stroke-width="0.07" stroke-dasharray="0.25 0.18"/>
+        </g>`;
+
+  // ---- Plant in the corner (just decoration) ----
+  s += box(0.3, 0.3, 0, 1, 1, 0.9, C.pot);
+  {
+    const [px, py] = iso(0.8, 0.8, 0.9);
+    s += `<ellipse cx="${px - 14}" cy="${py - 28}" rx="16" ry="26" fill="${C.leafDark}" transform="rotate(-25 ${px - 14} ${py - 28})"/>
+          <ellipse cx="${px + 14}" cy="${py - 30}" rx="15" ry="27" fill="${C.leafDark}" transform="rotate(25 ${px + 14} ${py - 30})"/>
+          <ellipse cx="${px}" cy="${py - 40}" rx="15" ry="32" fill="${C.leaf}"/>`;
+  }
+
+  // ---- Cabinet with the jar of hearts and the radio ----
+  s += box(6, 0, 0, 3.4, 1.3, 2, C.cabinet);
+  s += `<g transform="${onRightWall(1.3)}" fill="none" stroke="${shade(C.cabinet, -0.2)}" stroke-width="0.05">
+          <rect x="6.25" y="-1.65" width="1.35" height="1.2" rx="0.08"/>
+          <rect x="7.8" y="-1.65" width="1.35" height="1.2" rx="0.08"/>
+          <circle cx="7.45" cy="-1.05" r="0.06" fill="#fff"/><circle cx="7.95" cy="-1.05" r="0.06" fill="#fff"/>
+        </g>`;
+
+  {
+    const [jx, jy] = iso(7, 0.65, 2);
+    s += spot("jar", "Jar of hearts",
+      `<ellipse cx="${jx}" cy="${jy}" rx="20" ry="7" fill="rgba(0,0,0,0.08)"/>
+       <path d="M${jx - 18} ${jy - 46} h36 v40 q0 8 -8 8 h-20 q-8 0 -8 -8Z" fill="rgba(255,255,255,0.6)" stroke="#fff" stroke-width="2"/>
+       ${heart(jx - 8, jy - 14, 7, "#E8638F")}${heart(jx + 7, jy - 18, 6, "#FF8FB3")}
+       ${heart(jx - 3, jy - 28, 6, "#C73B6E")}${heart(jx + 9, jy - 33, 5, "#E8638F")}${heart(jx - 10, jy - 38, 5, "#FF8FB3")}
+       <rect x="${jx - 20}" y="${jy - 54}" width="40" height="9" rx="3" fill="${C.accent}"/>`,
+      jx, jy - 26, 34, jx + 26, jy - 58);
+  }
+
+  {
+    const [ax, ay] = iso(8.95, 0.55, 2.6);
+    s += spot("radio", "Little radio",
+      `${box(8.2, 0.3, 2, 1, 0.7, 0.6, C.radio)}
+       <g transform="${onRightWall(1.0)}">
+         <circle cx="8.5" cy="-2.3" r="0.18" fill="${shade(C.radio, -0.3)}"/>
+         <rect x="8.8" y="-2.45" width="0.3" height="0.1" fill="#fff"/>
+       </g>
+       <line x1="${ax}" y1="${ay}" x2="${ax + 14}" y2="${ay - 34}" stroke="#6B1F3A" stroke-width="2"/>
+       <circle cx="${ax + 14}" cy="${ay - 34}" r="3" fill="${C.accent}"/>`,
+      ...iso(8.7, 0.65, 2.4), 32, ...iso(9.6, 0.6, 3.4));
+  }
+
+  // ---- Sofa against the left wall ----
+  {
+    const [sx, sy] = iso(1.3, 7.5, 0);
+    s += `<ellipse cx="${sx}" cy="${sy + 8}" rx="110" ry="40" fill="rgba(0,0,0,0.06)"/>`;
+  }
+  s += box(0, 5.4, 0, 0.6, 4.2, 2.3, C.sofa);
+  s += box(0.6, 5.4, 0, 1.6, 0.55, 1.5, C.sofa);
+  s += box(0.6, 5.95, 0, 1.6, 3.1, 1.0, C.sofaSeat);
+  s += box(0.6, 6.4, 1.0, 0.45, 1.1, 0.9, C.cushion);
+  s += box(0.6, 7.7, 1.0, 0.45, 1.1, 0.9, C.cushion);
+  s += box(0.6, 9.05, 0, 1.6, 0.55, 1.5, C.sofa);
+
+  // ---- Coffee table with the letters ----
+  {
+    const [tx, ty] = iso(5.2, 5.9, 0);
+    s += `<ellipse cx="${tx}" cy="${ty}" rx="50" ry="18" fill="rgba(0,0,0,0.07)"/>`;
+  }
+  s += spot("letters", "Letters on the table",
+    `${box(5, 5.7, 0, 0.4, 0.4, 1.0, C.woodDark)}
+     ${box(4.1, 4.9, 1.0, 2.2, 2.0, 0.2, C.wood)}
+     ${box(4.5, 5.2, 1.2, 1.2, 0.8, 0.06, "#FFFFFF")}
+     ${box(4.75, 5.5, 1.26, 1.2, 0.8, 0.06, "#FFF4E0")}
+     ${box(4.4, 5.85, 1.32, 1.2, 0.8, 0.06, "#FFFFFF")}
+     <g transform="${onFloor(1.38)}">
+       <polyline points="4.4,5.85 5.0,6.25 5.6,5.85" fill="none" stroke="#E7C9B5" stroke-width="0.04"/>
+       <circle cx="5.0" cy="6.25" r="0.13" fill="${C.accent}"/>
+     </g>`,
+    ...iso(5.2, 5.9, 1.2), 52, ...iso(6.3, 4.9, 2.2));
+
+  // ---- Sleeping cat on the rug ----
+  {
+    const [cx, cy] = iso(7.4, 7.6, 0);
+    s += spot("cat", "Sleeping cat",
+      `<ellipse cx="${cx}" cy="${cy + 2}" rx="38" ry="10" fill="rgba(0,0,0,0.08)"/>
+       <path d="M${cx + 30} ${cy - 4} q22 4 6 16 q-30 8 -58 -4" fill="none" stroke="${C.cat}" stroke-width="7" stroke-linecap="round"/>
+       <ellipse cx="${cx}" cy="${cy - 12}" rx="32" ry="17" fill="${C.cat}"/>
+       <ellipse cx="${cx - 2}" cy="${cy - 6}" rx="20" ry="8" fill="${C.catLight}"/>
+       <circle cx="${cx - 28}" cy="${cy - 14}" r="13" fill="${C.cat}"/>
+       <path d="M${cx - 38} ${cy - 22} l2 -12 l8 8Z M${cx - 24} ${cy - 25} l6 -10 l4 11Z" fill="${C.cat}"/>
+       <path d="M${cx - 34} ${cy - 14} q3 2 6 0 M${cx - 25} ${cy - 14} q3 2 6 0" stroke="#4a3b48" stroke-width="1.5" fill="none"/>
+       <text x="${cx - 12}" y="${cy - 40}" font-size="16" class="hand" fill="${C.accent}">z z z</text>`,
+      cx - 4, cy - 14, 42, cx + 34, cy - 40);
+  }
+
+  document.getElementById("room").innerHTML = s;
+}
+
+/* ===========================================================
+   LIVE DETAILS: the clock ticks and the window follows
+   the real time of day
+   =========================================================== */
+const start = new Date(CONFIG.startYear, CONFIG.startMonth - 1, CONFIG.startDay);
+const MS_SECOND = 1000, MS_MINUTE = 60000, MS_HOUR = 3600000, MS_DAY = 86400000;
+
+function updateClockAndWindow() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes(), sec = now.getSeconds();
+  const turn = (id, deg) => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute("transform", `rotate(${deg} 2.5 -4.3)`);
+  };
+  turn("hourHand", ((h % 12) + m / 60) * 30);
+  turn("minHand", (m + sec / 60) * 6);
+  turn("secHand", sec * 6);
+
+  const sky = document.getElementById("sky");
+  if (!sky) return;
+  const night = h >= 19 || h < 6, sunset = h >= 17 && h < 19;
+  sky.setAttribute("fill", night ? "#2E2A5C" : sunset ? "#FFB38A" : "#BFE6FF");
+  document.getElementById("sunmoon").setAttribute("fill", night ? "#FFF6D5" : sunset ? "#FF7F6B" : "#FFE27A");
+  document.getElementById("stars").setAttribute("opacity", night ? 1 : 0);
+  document.getElementById("hill").setAttribute("fill", night ? "#3F5F59" : "#8FD3A8");
+}
 
 function updateCounter() {
   const diff = Math.max(0, Date.now() - start.getTime());
-
-  document.getElementById("days").textContent    = Math.floor(diff / MS_DAY).toLocaleString();
-  document.getElementById("hours").textContent   = Math.floor((diff % MS_DAY) / MS_HOUR);
-  document.getElementById("minutes").textContent = Math.floor((diff % MS_HOUR) / MS_MINUTE);
-  document.getElementById("seconds").textContent = Math.floor((diff % MS_MINUTE) / MS_SECOND);
+  const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+  set("pDays", Math.floor(diff / MS_DAY).toLocaleString());
+  set("pHours", Math.floor((diff % MS_DAY) / MS_HOUR));
+  set("pMinutes", Math.floor((diff % MS_HOUR) / MS_MINUTE));
+  set("pSeconds", Math.floor((diff % MS_MINUTE) / MS_SECOND));
 }
 
 /* ===========================================================
-   TODAY'S NOTE
-   Day 0 gets note 0, day 1 gets note 1, and when we run
-   out we loop back to the start (that's what % does).
+   JAR OF HEARTS
+   Like drawing cards from a shuffled deck: no repeats until
+   she has seen every reason, then the deck is shuffled again.
    =========================================================== */
-function showDailyNote() {
-  const dayNumber = Math.floor((Date.now() - start.getTime()) / MS_DAY);
-  const index = ((dayNumber % CONFIG.notes.length) + CONFIG.notes.length) % CONFIG.notes.length;
-  document.getElementById("dailyNote").textContent = CONFIG.notes[index];
+let deck = [], drawn = 0;
+function shuffle(list) {
+  const a = [...list];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function nextReason() {
+  if (deck.length === 0) deck = shuffle(CONFIG.reasons);
+  drawn++;
+  return deck.pop();
 }
 
 /* ===========================================================
-   OPENING THE DOOR
-   Step 1: swing the door open
-   Step 2: zoom the camera through the doorway
-   Step 3: show the inside of the house
+   THE POP-UP CARDS
+   Each object in the room has its own card.
    =========================================================== */
+const panel = document.getElementById("panel");
+const body = document.getElementById("panelBody");
+const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+function parseDate(text) {
+  const [y, m, d] = text.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+const PANELS = {
+  clock() {
+    body.innerHTML = `
+      <h2>Our time together</h2>
+      <p>We’ve been together for</p>
+      <p class="days" id="pDays">0</p><p>days</p>
+      <div class="clock-row">
+        <div><b id="pHours">0</b><small>hours</small></div>
+        <div><b id="pMinutes">0</b><small>minutes</small></div>
+        <div><b id="pSeconds">0</b><small>seconds</small></div>
+      </div>
+      <p class="muted">Ever since ${CONFIG.startDay} April ${CONFIG.startYear}, the day you said “let’s get married” (jokingly… right?)</p>`;
+    updateCounter();
+  },
+
+  jar() {
+    const show = () => {
+      const reason = nextReason();
+      body.innerHTML = `
+        <h2>A heart from the jar</h2>
+        <p class="big-hand reason-pop">${esc(reason)}</p>
+        <p class="muted">Reason #${drawn}</p>
+        <button class="pill-btn" id="another">Take another heart</button>`;
+      document.getElementById("another").onclick = show;
+    };
+    show();
+  },
+
+  letters() {
+    const today = new Date();
+    const list = CONFIG.letters.map((l, i) => {
+      const unlockAt = l.unlock ? parseDate(l.unlock) : null;
+      const locked = unlockAt && today < unlockAt;
+      const daysLeft = locked ? Math.ceil((unlockAt - today) / MS_DAY) : 0;
+      return `<button class="letter-btn" data-letter="${i}" ${locked ? "disabled" : ""}>
+                <span>${locked ? "🔒" : l.emoji}</span>
+                <div>${esc(l.title)}${locked ? `<small>Opens in ${daysLeft} day${daysLeft === 1 ? "" : "s"}</small>` : ""}</div>
+              </button>`;
+    }).join("");
+    body.innerHTML = `<h2>Letters for you</h2><div class="letters">${list}</div>`;
+    body.querySelectorAll(".letter-btn:not([disabled])").forEach(btn => {
+      btn.onclick = () => {
+        const l = CONFIG.letters[btn.dataset.letter];
+        body.innerHTML = `
+          <h2>${esc(l.emoji)} ${esc(l.title)}</h2>
+          <div class="letter-paper">${esc(l.text)}</div>
+          <button class="pill-btn" id="backLetters">Back to letters</button>`;
+        document.getElementById("backLetters").onclick = PANELS.letters;
+      };
+    });
+  },
+
+  note() {
+    const dayNumber = Math.floor((Date.now() - start.getTime()) / MS_DAY);
+    const n = CONFIG.notes.length;
+    body.innerHTML = `
+      <h2>Today’s note</h2>
+      <p class="big-hand">${esc(CONFIG.notes[((dayNumber % n) + n) % n])}</p>
+      <p class="muted">There’s a new one every day.</p>`;
+  },
+
+  window() {
+    const h = new Date().getHours();
+    const line =
+      h < 6  ? "It’s so late! Go to sleep, I’ll be in your dreams." :
+      h < 12 ? "Good morning, sunshine. The sky’s pretty, but you’re prettier." :
+      h < 17 ? "Afternoon already. Have you eaten? Go get a snack." :
+      h < 19 ? "Look at that sunset. I wish I was watching it with you." :
+               "The stars are out. Every one of them is a goodnight from me.";
+    body.innerHTML = `<h2>Looking outside</h2><p class="big-hand">${line}</p>`;
+  },
+
+  cat() {
+    body.innerHTML = `
+      <h2>${esc(CONFIG.catName)} is napping</h2>
+      <p class="big-hand">Purr… purr…</p>
+      <p class="muted">${esc(CONFIG.catName)} says you’re the best person in the house. (I agree.)</p>`;
+  },
+
+  photos() {
+    body.innerHTML = `<h2>Our memories</h2><p>Photos of us are coming here soon.</p><p class="muted">This room is still being decorated.</p>`;
+  },
+
+  radio() {
+    body.innerHTML = `<h2>Our songs</h2><p>A playlist of songs that remind me of you is coming soon.</p><p class="muted">Tune in later.</p>`;
+  },
+
+  secret() {
+    body.innerHTML = `<h2>You found everything ♥</h2><p class="big-hand">${esc(CONFIG.secretMessage)}</p>`;
+  }
+};
+
+/* ===========================================================
+   EXPLORING: track which things she has found
+   =========================================================== */
+const SPOT_COUNT = 8;
+const found = new Set();
+let secretShown = false;
+
+function updateTracker() {
+  document.getElementById("tracker").textContent =
+    found.size === SPOT_COUNT ? "Found everything ♥" : `Found ${found.size} of ${SPOT_COUNT}`;
+}
+
+function openSpot(id) {
+  found.add(id);
+  document.querySelector(`[data-spot="${id}"]`)?.classList.add("found");
+  updateTracker();
+  PANELS[id]();
+  panel.showModal();
+}
+
+function setupRoomClicks() {
+  const room = document.getElementById("room");
+  room.addEventListener("click", e => {
+    const el = e.target.closest(".spot");
+    if (el) openSpot(el.dataset.spot);
+  });
+  room.addEventListener("keydown", e => {
+    const el = e.target.closest(".spot");
+    if (el && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      openSpot(el.dataset.spot);
+    }
+  });
+}
+
+document.getElementById("closePanel").onclick = () => panel.close();
+panel.addEventListener("click", e => { if (e.target === panel) panel.close(); }); // tap outside to close
+panel.addEventListener("close", () => {
+  if (found.size === SPOT_COUNT && !secretShown) {
+    secretShown = true;
+    setTimeout(() => { PANELS.secret(); panel.showModal(); }, 300);
+  }
+});
+
+/* ===========================================================
+   THE FRONT DOOR (same as before)
+   =========================================================== */
+const outside = document.getElementById("outside");
+const inside = document.getElementById("inside");
+const house = document.getElementById("house");
+const door = document.getElementById("door");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, reduceMotion ? 0 : ms));
-
+const wait = ms => new Promise(r => setTimeout(r, reduceMotion ? 0 : ms));
 let isOpening = false;
 
 door.addEventListener("click", async () => {
   if (isOpening) return;
   isOpening = true;
-
-  house.classList.add("open");                        // step 1
+  house.classList.add("open");
   await wait(800);
-
-  const box = door.getBoundingClientRect();           // step 2: zoom toward the door
-  outside.style.transformOrigin =
-    (box.left + box.width / 2) + "px " + (box.top + box.height / 2) + "px";
+  const b = door.getBoundingClientRect();
+  outside.style.transformOrigin = (b.left + b.width / 2) + "px " + (b.top + b.height / 2) + "px";
   outside.classList.add("zoom");
   await wait(850);
-
-  outside.hidden = true;                              // step 3
+  outside.hidden = true;
   inside.hidden = false;
   inside.classList.add("show");
   window.scrollTo(0, 0);
@@ -447,10 +808,16 @@ document.getElementById("leave").addEventListener("click", () => {
   door.focus();
 });
 
-/* Start everything */
-updateCounter();
-showDailyNote();
-setInterval(updateCounter, 1000);   // tick once every second
+/* ===========================================================
+   START
+   =========================================================== */
+document.getElementById("sign").textContent = CONFIG.herName;
+document.getElementById("welcome").textContent = "Welcome home, " + CONFIG.herName;
+buildRoom();
+setupRoomClicks();
+updateTracker();
+updateClockAndWindow();
+setInterval(() => { updateClockAndWindow(); updateCounter(); }, 1000);
 </script>
 </body>
 </html>
